@@ -1,0 +1,26 @@
+README 
+
+Coding Standards
+
+-Method names should always be verbs, with the first word lower case and each subsequent word upper case with no space between
+-Variable names should have lower case for the first word and upper case for each following word with no space
+-Arguments for event handlers will use the word "event" instead of "e" or "evt" such as (event:Event)
+-For getter/setter and return functions, the function will start with "_"
+-Write an RGB color as a six-digit hexadecimal number in all caps, and link them with a color constant written in all caps
+-view files will always end in the word "View"
+
+Plug-ins
+
+-Eclipse Color Themes 
+-SourceMate
+-TourDeFlex
+
+Code assistance and Credits
+Jun Heider
+SQL Setup (model, control) and assistance in development
+XML Parsing setup
+Various and most other componenents
+
+Signature Capture by Andrew Trice 
+http://www.tricedesigns.com/2011/12/21/capturing-user-signatures-in-mobile-applications/
+

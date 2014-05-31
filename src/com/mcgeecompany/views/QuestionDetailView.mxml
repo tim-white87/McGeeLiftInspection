@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+		actionBarVisible="false" creationComplete="onCreationComplete();">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.DataModel;
+			import com.mcgeecompany.model.vo.QuestionVO;
+			
+			
+			[Bindable] private var mediaPromise:MediaPromise;
+			[Bindable] private var appModel:AppModel = AppModel.getInstance();
+			[Bindable] private var dataModel:DataModel = DataModel.getInstance();
+			
+			private var cameraUI:CameraUI;
+			
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				
+				if( value is QuestionVO )
+				{
+					appModel.question = value as QuestionVO;
+				}
+			}
+			
+			private function onCreationComplete():void
+			{
+				if(CameraUI.isSupported)
+				{
+					cameraUI = new CameraUI();
+					cameraUI.addEventListener(MediaEvent.COMPLETE, onComplete);
+				}
+				
+				if(appModel.question.answer == pass.id) pass.selected = true;
+				if(appModel.question.answer == attentionNeeded.id) attentionNeeded.selected = true;
+				if(appModel.question.answer == fail.id) fail.selected = true;
+				if(appModel.question.answer == na.id) na.selected = true;
+				
+			}	
+			
+			protected function onComplete(event:MediaEvent):void
+			{
+				cameraUI.removeEventListener(MediaEvent.COMPLETE, onComplete);				
+				mediaPromise = event.data as MediaPromise;
+				appModel.question.photoURL = mediaPromise.file.url;
+				trace(appModel.question.photoURL);
+				questionImage.source = mediaPromise.file.url;
+			}
+			
+			private function onImageLoadComplete(event:Event):void
+			{
+				var img:Image = event.currentTarget as Image;
+				img.width = this.width - 10;
+				img.height = this.height/2 - 10; 
+				
+			}
+			
+			protected function camera_clickHandler():void
+			{
+				if(CameraUI.isSupported)
+				{
+					cameraUI.launch(MediaType.IMAGE);
+				}
+				
+			}
+			
+			protected function comment_clickHandler(event:MouseEvent):void
+			{
+				comment_ta.visible = true;		
+				comment_ta.text = appModel.question.comment;
+			}
+			
+			
+			private function setQuestionData():void
+			{
+				if (comment_ta.text != "")
+				{
+					appModel.question.comment = comment_ta.text;
+				}
+				if(mediaPromise !== null)
+				{
+					appModel.question.photoURL = mediaPromise.file.url;
+					//trace(appModel.question.photoURL);
+				}
+				if(pass.selected == true) appModel.question.answer = pass.id;
+				if(attentionNeeded.selected == true) appModel.question.answer = attentionNeeded.id;
+				if(fail.selected == true) appModel.question.answer = fail.id;
+				if(na.selected == true) appModel.question.answer = na.id;
+			}
+			
+			protected function nextQuestion():void
+			{  
+				if (appModel.questionID < appModel.questionList.length - 1)
+				{
+					appModel.questionID ++;
+					navigator.pushView(QuestionDetailView, appModel.questionList.getItemAt(appModel.questionID));
+					
+				} else navigator.pushView(SignatureView, data);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<customcomponents:Background width="100%" height="100%"/>
+		
+	<!--Question Details-->
+	<s:VGroup width="100%" height="70%" horizontalAlign="center" paddingTop="10" verticalAlign="top"
+			  y="{this.screen.height - this.screen.height * .8}">
+		
+		<s:Label id="who_lbl" width="80%" fontSize="18" lineBreak="toFit"
+				 text="{ appModel.question.questionText }" textAlign="left"/>
+		
+		<s:Group width="80%">
+			<s:layout>
+				<s:TileLayout horizontalAlign="center" verticalAlign="justify" 
+							  columnAlign="justifyUsingWidth"/>
+			</s:layout>
+			<s:CheckBox id="pass" label="Pass"
+						click="{ attentionNeeded.selected = false; fail.selected = false; 
+						na.selected = false;  }"/>
+			
+			<s:CheckBox id="attentionNeeded" label="Attn Needed"
+						click="{ pass.selected = false; fail.selected = false; na.selected = false; }"/>
+			
+			<s:CheckBox id="fail" label="Fail"		
+						click="{ pass.selected = false; attentionNeeded.selected = false; na.selected = false; }"/>
+			
+			<s:CheckBox id="na" label="N/A"
+						click="{ pass.selected = false; attentionNeeded.selected = false; fail.selected = false; }"/>
+			
+			<s:Image id="camera" click="camera_clickHandler()"
+					 source="@Embed('assets/images/cameraIcon.png')"/>
+		</s:Group>
+		  	<s:TextArea id="comment_ta" prompt="comments..." text="{ appModel.question.comment }"
+						x="{(this.screen.width - this.comment_ta.width)/2}" width="60%" height="40%" />
+		  	<s:Image id="questionImage" complete="onImageLoadComplete(event)" scaleX=".60"
+					 scaleY=".60" source="{ appModel.question.photoURL }"/>	
+	</s:VGroup>
+		
+	<!--Navigation Buttons-->
+	<s:HGroup y="{this.screen.height - this.screen.height * .15}" width="100%" height="10%"
+			  horizontalAlign="center" verticalAlign="bottom">
+		<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+			<s:Button id="back_btn" width="50%" height="50%" label="Back"
+					  click="setQuestionData(), navigator.pushView(QuestionsView, data)"/>
+		</s:HGroup>
+		<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle">
+			<s:Button id="next_btn" width="50%" height="50%" label="Next"
+					  click="nextQuestion(), setQuestionData()"/>
+		</s:HGroup>
+	</s:HGroup>
+		
+
+	
+</s:View>
+
+

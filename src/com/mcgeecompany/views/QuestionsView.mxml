@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+		actionBarVisible="false" creationComplete="onCreationComplete()">
+	
+	<fx:Metadata>
+		[Event(name="commentClick", type="flash.events.Event")]
+	</fx:Metadata>
+			
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.DataModel;
+			import com.mcgeecompany.model.vo.QuestionVO;
+			
+			[Bindable] private var appModel:AppModel = AppModel.getInstance();
+			[Bindable] private var dataModel:DataModel = DataModel.getInstance();
+			
+			private function onCreationComplete():void
+			{
+				questionList.addEventListener('commentClick', commentButtonClick);
+			}
+						
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				
+				if( value is QuestionVO )
+				{
+					appModel.question = value as QuestionVO;
+				}
+				
+			}
+			
+			protected function commentButtonClick(event:Event):void
+			{
+				
+				appModel.question = questionList.selectedItem;
+				appModel.questionID = questionList.selectedIndex;
+				navigator.pushView(QuestionDetailView, appModel.question);
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<customcomponents:Background width="100%" height="100%"/>
+	
+	<s:VGroup width="100%" height="100%">
+		
+		<!--Title-->
+		<s:VGroup width="100%" height="15%" horizontalAlign="center" verticalAlign="middle">
+			
+			<s:Label styleName="header" text="Lift Inspection Questions" verticalAlign="bottom"/>
+		</s:VGroup>
+		
+		<!--Inspection Questions Form-->
+		<s:VGroup width="100%" height="85%" horizontalAlign="center" paddingTop="10"
+				  verticalAlign="top">
+			
+			<!--Questions-->
+			<s:HGroup width="80%" height="100%" horizontalAlign="center" verticalAlign="top">
+				
+				<s:List id="questionList" width="100%" height="95%" contentBackgroundColor="#EFEFEF"
+						dataProvider="{ appModel.questionList }"
+						itemRenderer="com.mcgeecompany.views.itemrenderer.QuestionRenderer"
+						useVirtualLayout="false">
+				
+				</s:List>
+			</s:HGroup>
+			
+		</s:VGroup>
+		
+		<!--Navigation Buttons-->
+		<s:HGroup width="100%" height="10%" horizontalAlign="center" verticalAlign="top">
+			<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+				<s:Button id="back_btn" width="50%" height="50%" label="Back"
+						  click="navigator.popView()"/>
+			</s:HGroup>
+			
+			<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle">
+				<s:Button id="next_btn" width="50%" height="50%" label="Next"
+						  click="navigator.pushView(SignatureView, data)"/>
+			</s:HGroup>
+		</s:HGroup>
+		
+	</s:VGroup>
+	
+</s:View>

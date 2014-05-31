@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx" 
+	xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*" xmlns:skins="com.mcgeecompany.skins.*"
+	actionBarVisible="false">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.vo.AddressVO;
+			import com.mcgeecompany.model.vo.CompanyVO;
+			import com.mcgeecompany.model.vo.FormVO;
+			import com.mcgeecompany.model.vo.LiftVO;
+			
+			private var appModel:AppModel = AppModel.getInstance();
+
+			private function newForm():void
+			{
+				//Instantiate Form
+				appModel.company = new CompanyVO();
+				appModel.address = new AddressVO();
+				appModel.lift = new LiftVO();
+				appModel.form = new FormVO();
+			}
+			
+			private function browsePDFs():void
+			{
+				var fileRef:FileReference = new FileReference();
+				fileRef.browse();
+			}
+			
+		]]>
+	</fx:Script>
+	<customcomponents:Background width="100%" height="100%"/>
+	
+		<s:VGroup width="100%" height="30%" horizontalAlign="center" verticalAlign="middle">
+			<s:Label styleName="header" text="McGee Lift Inspection"/>
+		</s:VGroup>
+	
+	<s:Group width="100%" height="100%">
+		<s:layout>
+			<s:VerticalLayout verticalAlign="middle" horizontalAlign="center"/>
+		</s:layout>
+			<s:Button width="30%" height="5%" label="New Form" click="{newForm(), navigator.pushView(com.mcgeecompany.views.LiftView)}"/>
+			<s:Button width="30%" height="5%" label="Jobs" click="{navigator.pushView(com.mcgeecompany.views.JobsView)}"/>
+			<s:Button width="30%" height="5%" label="View Forms" click="{ browsePDFs() }"/>
+			<s:Button width="30%" height="5%" label="About Us" click="{navigator.pushView(com.mcgeecompany.views.AboutView)}"/>
+		</s:Group>
+</s:View>
+

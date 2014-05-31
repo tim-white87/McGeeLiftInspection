@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+		actionBarVisible="false"
+		creationComplete="onCreationComplete()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.coltware.airxmail.ContentType;
+			import com.coltware.airxmail.INetAddress;
+			import com.coltware.airxmail.MailSender.SMTPSender;
+			import com.coltware.airxmail.MimeBinaryPart;
+			import com.coltware.airxmail.MimeMessage;
+			import com.coltware.airxmail.RecipientType;
+			import com.coltware.airxmail.smtp.SMTPEvent;
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.DataModel;
+
+			[Bindable] private var appModel:AppModel = AppModel.getInstance();
+			[Bindable] private var dataModel:DataModel = DataModel.getInstance();
+			
+			private function onCreationComplete():void
+			{
+				fromAddr.text = appModel.form.inspector + '@mcgeeliftinspection.com';
+				toAddr.text = appModel.company.email;
+				subject.text = "Lift inspection";
+				body.text = "Lift inspection";
+				for each (var form:Object in dataModel.loadedForms)
+				{
+					if (form['sro'] == appModel.form.sro)
+					{
+						pdfAttachment.text += appModel.form.sro + '-' + form['bay'] + '.pdf' + '; ';
+					}
+				}
+			}
+			
+			//-----------------------------------------------------------
+			//  EVENT LISTENERS
+			//-----------------------------------------------------------			
+			private function _onMailGunServiceResult( event:SMTPEvent ):void
+			{
+				sendConf.text = "Mail sent successfully!";
+			}
+			
+			private function _onMailGunServiceFault( event:SMTPEvent ):void
+			{
+				trace(event);
+				sendConf.text = "Failed to send mail :(";
+			}
+			
+			private function _onSendMailClick( event:MouseEvent ):void
+			{
+				sendConf.text = "Sending...";
+				
+				var sender:SMTPSender = new SMTPSender();
+				sender.setParameter(SMTPSender.HOST, "smtp.mailgun.org");
+				sender.setParameter(SMTPSender.PORT, 587);
+				sender.setParameter(SMTPSender.AUTH, true);
+				sender.setParameter(SMTPSender.USERNAME, "postmaster@sandbox78428.mailgun.org");
+				sender.setParameter(SMTPSender.PASSWORD, "4j6sedlnl9e0");
+				
+				// Create email message
+				var message:MimeMessage = new MimeMessage(ContentType.MULTIPART_MIXED);
+				var from:INetAddress = new INetAddress(fromAddr.text, appModel.form.inspector);
+				var toRecpt:INetAddress = new INetAddress(toAddr.text,"to label");
+				for each (var form:Object in dataModel.loadedForms)
+				{
+					if (form['sro'] == appModel.form.sro)
+					{
+						var attachmentFile:MimeBinaryPart = new MimeBinaryPart(); 
+						attachmentFile.setAttachementFile(File.documentsDirectory.resolvePath(appModel.form.sro + 
+							'-' + form['bay'] + '.pdf'), appModel.form.sro + '-' + form['bay'] + '.pdf');
+						message.addChildPart(attachmentFile);
+					}
+				}
+				
+				
+				message.setFrom(from);
+				message.addRcpt(RecipientType.TO, toRecpt);
+				message.setSubject(subject.text);
+				message.setTextBody(body.text);				
+				
+				
+				sender.send(message);
+				sender.close();
+				sender.addEventListener(SMTPEvent.SMTP_SENT_OK, _onMailGunServiceResult);
+				sender.addEventListener(SMTPEvent.SMTP_CONNECTION_FAILED, _onMailGunServiceFault);
+			}	
+			
+						
+		]]>
+	</fx:Script>
+	
+	<customcomponents:Background width="100%" height="100%"/>
+	
+	<s:Group width="80%" height="80%" x="{this.screen.width * .1}" y="{this.screen.height * .15}">
+	<s:layout>
+		<s:VerticalLayout paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10" horizontalAlign="center"/>
+	</s:layout>
+		<s:Label text="From:"/>
+		<s:TextInput id="fromAddr"/>	
+		
+		<s:Label text="To:"/>
+		<s:TextInput id="toAddr"/>
+		
+		<s:Label text="Subject:"/>
+		<s:TextInput id="subject"/>	
+		
+		<s:Label text="Body:"/>
+		<s:TextArea id="body" height="30%"/>	
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="Attachments: "/>
+			<s:Image source="@Embed('assets/images/pdfIcon.png')"/>
+			<s:Label id="pdfAttachment"/>
+		</s:HGroup>
+		<s:Button id="sendMail_btn"
+				  label="Send"
+				  click="_onSendMailClick(event)"/>
+		<s:Label id="sendConf"/>
+	</s:Group>
+	
+	<!--Navigation Buttons-->
+	<s:HGroup y="{this.screen.height - this.screen.height * .15}" width="100%" height="10%"
+			  horizontalAlign="center" verticalAlign="bottom">
+		<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+			<s:Button id="back_btn" width="50%" height="50%" label="Back" click="navigator.popView()"/>
+		</s:HGroup>
+		<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle"/>
+	</s:HGroup>
+</s:View>

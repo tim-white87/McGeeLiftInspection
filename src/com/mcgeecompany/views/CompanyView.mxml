@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+		xmlns:validators="com.mcgeecompany.control.utilities.*"
+		actionBarVisible="false" creationComplete="onCreationComplete()">
+	
+	<fx:Metadata>
+		[Event(name="lastRow", type="flash.events.Event")]
+	</fx:Metadata>
+
+	<fx:Declarations>
+		<fx:Array id="validators">
+			<mx:NumberValidator id="sroValidator" property="text" required="true" source="{this.sro}"/>
+			<mx:StringValidator id="inspectorValidator" property="text" required="true"
+								source="{this.inspector}"/>
+			<mx:StringValidator id="locationValidator" property="text" required="true"
+								source="{this.location}"/>
+			<mx:NumberValidator id="streeNumberValidator" property="text" required="true"
+								source="{this.streetNumber}"/>
+			<mx:StringValidator id="streetNameValidator" property="text" required="true"
+								source="{this.streetName}"/>
+			<mx:StringValidator id="cityValidator" property="text" required="true"
+								source="{this.city}"/>
+			<mx:StringValidator id="stateValidator" maxLength="2" minLength="2" property="text"
+								required="true" source="{this.state}"/>
+			<mx:ZipCodeValidator id="zipcodeValidator" property="text" required="true"
+								 source="{this.zipCode}"/>
+			<mx:PhoneNumberValidator id="phoneNumberValidator" property="text" required="true"
+									 source="{this.phoneNumber}"/>
+		</fx:Array>
+		<validators:FormValidator id="formValidator" validators="{this.validators}"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.DataModel;
+			
+			private var appModel:AppModel = AppModel.getInstance();
+			private var dataModel:DataModel = DataModel.getInstance();
+			
+			private function onCreationComplete():void
+			{
+				//Display user input on return
+				if (appModel.company !== null)
+				{
+				
+				sro.text = appModel.form.sro;
+				inspector.text = appModel.form.inspector;
+				location.text = appModel.company.location;
+				streetNumber.text = appModel.address.streetNumber;
+				streetName.text = appModel.address.streetName;
+				city.text = appModel.address.city;
+				state.text = appModel.address.state;
+				zipCode.text = appModel.address.zipCode;
+				phoneNumber.text = appModel.address.phoneNumber;
+				email.text = appModel.company.email;
+				
+				}
+			}
+			
+			private function setCompanyData():void
+			{
+	
+				appModel.form.sro = sro.text;
+				appModel.form.inspector = inspector.text;
+				appModel.company.location = location.text;
+				appModel.address.streetNumber = streetNumber.text;
+				appModel.address.streetName = streetName.text;
+				appModel.address.city = city.text;
+				appModel.address.state = state.text;
+				appModel.address.zipCode = zipCode.text;
+				appModel.address.phoneNumber = phoneNumber.text;
+				appModel.company.email = email.text;
+				}
+			
+			override public function set data(value:Object):void 
+			{
+				super.data = value;
+			}
+			
+			
+		]]>
+	</fx:Script>			
+	
+	<customcomponents:Background width="100%" height="100%"/>
+	
+	<s:VGroup width="100%" height="15%" horizontalAlign="center" verticalAlign="middle">
+		<s:Label styleName="header" text="Inspection Information" verticalAlign="bottom"/>
+	</s:VGroup>
+	
+	<s:Group id="inspectionGroup" x="{this.screen.width * .1}" y="{this.screen.height * .15}"
+			 width="80%" height="80%">
+		<s:layout>
+			<s:TileLayout columnAlign="justifyUsingWidth" columnWidth="{(this.screen.width * .8) /2}"
+						  horizontalAlign="center" paddingTop="15" requestedColumnCount="2"/>
+		</s:layout>
+			
+		<s:Label text="SRO #"/>
+		<s:TextInput id="sro" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="SRO #..."/>
+		<s:Label text="Inspector:"/>
+		<s:TextInput id="inspector" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="enter inspector name..."/>
+		<s:Label text="Location:"/>
+		<s:TextInput id="location" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="enter location name..."/>
+		<s:Label text="Address:"/>
+		<s:TextInput id="streetNumber" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="#..."/>
+		<s:TextInput id="streetName" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="street..."/>
+		<s:TextInput id="city" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="city..."/>
+		<s:TextInput id="state" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="state..."/>
+		<s:TextInput id="zipCode" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="zip code..."/>
+		<s:Label text="Phone Number:"/>
+		<s:TextInput id="phoneNumber" width="100%" change="this.formValidator.validateForm(event);"
+					 prompt="enter phone #..."/>
+		<s:Label text="Email:"/>
+		<s:TextInput id="email" width="100%"
+					 prompt="enter email..."/>
+		</s:Group>	
+	
+	<!--Navigation Buttons-->
+	<s:HGroup y="{this.screen.height - this.screen.height * .15}" width="100%" height="10%"
+			  horizontalAlign="center" verticalAlign="bottom">
+			<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+				<s:Button id="back_btn" width="50%" height="50%" label="Back"
+						  click="navigator.popView()"/>
+			</s:HGroup>
+			<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle">
+				<s:Button id="next_btn" width="50%" height="50%" label="Next"
+						  click="setCompanyData(), navigator.pushView(LiftView, data)"
+						  enabled="{this.formValidator.formIsValid}"/>
+			</s:HGroup>
+	</s:HGroup>
+
+</s:View>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- http://blog.flexexamples.com/2010/04/29/displaying-icons-in-a-spark-list-control-in-flex-4-2/ -->
+<s:ItemRenderer name="QuestionRenderer"
+				xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false"
+				creationComplete="onCreationComplete()">
+	
+	<fx:Metadata>
+		[Event(name="commentClick", type="flash.events.Event")]
+	</fx:Metadata>
+	
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.vo.QuestionVO;
+			
+			import mx.events.FlexEvent;
+			
+			[Bindable] private var _question:QuestionVO;
+			[Bindable] private var appModel:AppModel = AppModel.getInstance();
+			
+			public function onCreationComplete():void
+			{
+				if(_question.answer == pass.id) pass.selected = true;
+				if(_question.answer == attentionNeeded.id) attentionNeeded.selected = true;
+				if(_question.answer == fail.id) fail.selected = true;
+				if(_question.answer == na.id) na.selected = true;
+			}
+			
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				if( value is QuestionVO )
+				{	
+					_question = value as QuestionVO;
+					label = _question.questionText;
+				}
+				else
+				{
+					label = 'ooops';
+				}	
+			} 
+		
+			
+			private function commentEvent ():void
+			{
+				var commentEvent:Event = new Event('commentClick', true);
+				dispatchEvent(commentEvent);
+				comment.alpha = .75;
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<s:VGroup width="100%">
+		<s:Label id="labelDisplay" maxDisplayedLines="3" width="100%" fontSize="18" paddingTop="5"/>
+	
+		<s:Group>
+			<s:layout>
+				<s:HorizontalLayout gap="45" verticalAlign="contentJustify"/>
+			</s:layout>
+		
+			
+			<s:CheckBox id="pass" label="Pass"
+						click="{ attentionNeeded.selected = false; fail.selected = false; 
+						na.selected = false; _question.answer = pass.id; }"/>
+			
+			<s:CheckBox id="attentionNeeded" label="Attn Needed"
+						click="{ pass.selected = false; fail.selected = false; na.selected = false; 
+						_question.answer = attentionNeeded.id; }"/>
+			
+			<s:CheckBox id="fail" label="Fail"		
+						click="{ pass.selected = false; attentionNeeded.selected = false; na.selected = false;
+						_question.answer = fail.id }"/>
+			
+			<s:CheckBox id="na" label="N/A"
+						click="{ pass.selected = false; attentionNeeded.selected = false; fail.selected = false;
+						_question.answer = na.id; }"/>
+
+			<s:Image id="comment"
+					  source="@Embed('assets/images/commentIcon.png')"
+					  click="commentEvent()"/>
+		</s:Group>
+	</s:VGroup>
+
+	
+</s:ItemRenderer>

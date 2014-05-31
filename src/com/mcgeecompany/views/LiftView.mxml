@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+		xmlns:validators="com.mcgeecompany.control.utilities.*"
+		actionBarVisible="false" creationComplete="onCreationComplete()">
+	
+	<fx:Declarations>
+		
+		<fx:Array id="validators">
+			<mx:StringValidator id="bayValidator" property="text" required="true"
+								source="{this.bay}"/>
+			<mx:StringValidator id="serialNumberValidator" property="text" required="true"
+								source="{this.serialNumber}"/>
+			<mx:StringValidator id="modelNumberValidator" property="text" required="true"
+								source="{this.modelNumber}"/>
+			<mx:NumberValidator id="capacityValidator" property="text" required="true"
+								source="{this.capacity}"/>
+		</fx:Array>
+		
+		<validators:FormValidator id="formValidator" validators="{this.validators}"/>
+		
+		<s:HTTPService id="questionDataService" result="questionDataServiceResult(event)"
+					   resultFormat="e4x" showBusyCursor="true" url="assets/data/questionData.xml"/>
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.control.SQLControl;
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.DataModel;
+			import com.mcgeecompany.model.vo.QuestionVO;
+			
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable] private var _questions:Array = [ ];	
+			[Bindable] private var appModel:AppModel = AppModel.getInstance();
+			[Bindable] private var dataModel:DataModel = DataModel.getInstance();
+			private var questionData:XML;
+			private var questionXML:XML;
+			
+			private function onCreationComplete():void
+			{
+				dataModel.sqlControl = new SQLControl();
+				dataModel.sqlControl.loadSQLManufacturers();
+				
+				liftManufacturer.dataProvider = dataModel.loadedManufacturers;
+				
+				//Display user input on return
+				if (appModel.lift !== null)
+				{
+					serialNumber.text = appModel.lift.serial;
+					modelNumber.text = appModel.lift.modelNumber;
+					bay.text = appModel.lift.bay;
+					capacity.text = appModel.lift.capacity;
+					liftManufacturer.selectedIndex = appModel.lift.manufacturer;
+					if(appModel.lift.type == surface.id) 
+					{
+						surface.selected = true;
+						surfaceSubtype.visible = true;
+						if(appModel.lift.subType == _2post.id) _2post.selected = true;
+						if(appModel.lift.subType == _4post.id) _4post.selected = true;
+						if(appModel.lift.subType == pad.id) pad.selected = true;
+						if(appModel.lift.subType == scissor.id) scissor.selected = true;
+						if(appModel.lift.subType == hinge.id) hinge.selected = true;
+						if(appModel.lift.subType == wheelEngaging.id) wheelEngaging.selected = true;
+					}
+					if(appModel.lift.type == inground.id) 
+					{
+						inground.selected = true;
+						ingroundSubtype.visible = true;
+						if(appModel.lift.subType == highPressure.id) highPressure.selected = true;
+						if(appModel.lift.subType == lowPressure.id) lowPressure.selected = true;
+						if(appModel.lift.subType == foreAndAft.id) foreAndAft.selected = true;
+					}
+					if(appModel.lift.structure == swingArms.id) swingArms.selected = true;
+					if(appModel.lift.structure == padStyle.id) padStyle.selected = true;
+					if(appModel.lift.structure == hybrid.id) hybrid.selected = true;
+					if(appModel.lift.structure == turf.id) turf.selected = true;
+					if(appModel.lift.structure == driveOnRunways.id) driveOnRunways.selected = true;
+					if(appModel.lift.structure == other.id) other.selected = true;
+					
+					if(appModel.lift.details)
+					{
+						for each(var detail:String in appModel.lift.details)
+						{
+							if(detail == airRelease.id) airRelease.selected = true;
+							if(detail == cableRelease.id) cableRelease.selected = true;
+							if(detail == openFront.id) openFront.selected = true;
+							if(detail == platforms.id) platforms.selected = true;
+							if(detail == slackLock.id) slackLock.selected = true;
+							if(detail == safteyRod.id) safteyRod.selected = true;
+							if(detail == airLocks.id) airLocks.selected = true;
+							if(detail == rollingBridges.id) rollingBridges.selected = true;
+						}
+					}
+				}
+				
+				if(!appModel.questionList)appModel.questionList = new ArrayCollection();
+				
+				questionDataService.send();
+			}
+			
+			override public function set data(value:Object):void 
+			{
+				super.data = value;
+			}
+			
+			private function questionDataServiceResult(event:ResultEvent):void
+			{
+				//Load XML
+				trace("HTTP Service Call Success");
+				questionData = event.result as XML;			
+			}
+		
+			private function setQuestions():void
+			{
+				appModel.questionArray = [ ];
+				
+				// General Questions
+				for each (questionXML in questionData.general.question)
+				{
+					appModel.question = new QuestionVO( questionXML );
+					appModel.questionArray.push( appModel.question );
+				}
+				
+				// Type Questions
+				for each (questionXML in questionData[appModel.lift.type].question)
+				{
+					appModel.question = new QuestionVO( questionXML );
+					appModel.questionArray.push( appModel.question );
+				}
+				
+				// Subtype Questions
+				for each(questionXML in questionData[appModel.lift.subType].question)
+				{
+					appModel.question = new QuestionVO( questionXML );
+					appModel.questionArray.push( appModel.question );
+				}
+				
+				// Structure Questions
+				for each (questionXML in questionData[appModel.lift.structure].question)
+				{
+					appModel.question = new QuestionVO( questionXML );
+					appModel.questionArray.push( appModel.question );
+				}
+				
+				// Detail Questions
+				for each(var detail:String in appModel.lift.details)
+				{
+					for each (questionXML in questionData[detail].question)
+					{
+						appModel.question = new QuestionVO( questionXML )
+						appModel.questionArray.push( appModel.question );
+					}
+				}
+				
+				trace( appModel.questionArray.length + ' questions added' );
+				// 2. Store questions in a collection 
+				appModel.questionList.source = appModel.questionArray;
+			}
+			
+			private function setLiftData():void
+			{
+				appModel.lift.bay = bay.text;
+				appModel.lift.serial = serialNumber.text;
+				appModel.lift.modelNumber = modelNumber.text;
+				appModel.lift.capacity = capacity.text;
+				appModel.lift.manufacturer = liftManufacturer.selectedIndex;
+				appModel.lift.details = [ ];
+				if(swingArms.selected == true) appModel.lift.details.push(swingArms.id);
+				if(padStyle.selected == true) appModel.lift.details.push(padStyle.id);
+				if(hybrid.selected == true) appModel.lift.details.push(hybrid.id);
+				if(turf.selected == true) appModel.lift.details.push(turf.id);
+				if(driveOnRunways.selected == true) appModel.lift.details.push(driveOnRunways.id);
+				if(rollingBridges.selected == true) appModel.lift.details.push(rollingBridges.id);
+				if(airRelease.selected == true) appModel.lift.details.push(airRelease.id);
+				if(cableRelease.selected == true) appModel.lift.details.push(cableRelease.id);
+				if(openFront.selected == true) appModel.lift.details.push(openFront.id);
+				if(platforms.selected == true) appModel.lift.details.push(platforms.id);
+				if(slackLock.selected == true) appModel.lift.details.push(slackLock.id);
+				if(safteyRod.selected == true) appModel.lift.details.push(safteyRod.id);
+				if(airLocks.selected == true) appModel.lift.details.push(airLocks.id);
+				if(extendedHeightAdapters.selected == true) appModel.lift.details.push(extendedHeightAdapters.id);
+				if(overheadStructure.selected == true) appModel.lift.details.push(overheadStructure.id);
+				if(cables.selected == true) appModel.lift.details.push(cables.id);
+				if(openContainment.selected == true) appModel.lift.details.push(openContainment.id);
+				if(other.selected == true) appModel.lift.details.push(other.id);
+				
+			}
+						
+			private function liftManufacturer_changeHandler(event:IndexChangeEvent):void
+			{
+				liftManufacturer.selectedItem.name == 'Other' ? 
+					manufacturerTI.visible = true : manufacturerTI.visible = false; 
+			}
+			
+		]]>
+	</fx:Script>			
+	
+	<customcomponents:Background width="100%" height="100%"/>
+	
+	<s:VGroup width="100%" height="15%" horizontalAlign="center" verticalAlign="middle">
+		<s:Label styleName="header" text="Lift Information" verticalAlign="bottom"/>
+	</s:VGroup>
+	
+	<s:Group x="{this.screen.width * .1}" y="{this.screen.height * .1}" width="80%">
+		<s:layout>
+			<s:TileLayout columnAlign="justifyUsingWidth" horizontalAlign="center" paddingTop="15"
+						  requestedColumnCount="2" columnWidth="{(this.screen.width * .8) /2}"/>
+		</s:layout>
+		
+		<s:Label text="Bay #:"/>
+		<s:TextInput id="bay" change="this.formValidator.validateForm(event);"
+					 prompt="enter bay #..."/>
+		<s:Label text="Lift Model #"/>
+		<s:TextInput id="modelNumber" change="this.formValidator.validateForm(event);"
+					 prompt="enter model #..."/>
+		<s:Label id="serial" text="Lift Serial #:"/>
+		<s:TextInput id="serialNumber" change="this.formValidator.validateForm(event);"
+					 prompt="enter lift serial #..."/>
+		<s:Label text="Capcity:"/>
+		<s:TextInput id="capacity" change="this.formValidator.validateForm(event);"
+					 prompt="enter lift capacity..."/>
+	</s:Group>
+	
+	<s:Group id="manufacturerGroup" x="{this.screen.width * .1}" y="{this.screen.height * .24}"
+			 width="80%">
+		<s:layout>
+			<s:TileLayout columnAlign="justifyUsingWidth" horizontalAlign="center" paddingTop="15"
+						  requestedColumnCount="2" columnWidth="{(this.screen.width * .8) /2}"/>
+		</s:layout>
+		
+		<s:Label text="Manufacturer:"/>
+		<s:SpinnerListContainer width="100%" textAlign="center">
+			<s:SpinnerList id="liftManufacturer" width="100%"
+						   change="liftManufacturer_changeHandler(event)" labelField="name"/>                    
+		</s:SpinnerListContainer>
+	</s:Group>	
+	<s:TextInput id="manufacturerTI" visible="false" x="{ manufacturerGroup.x }" width="40%"
+				 y="{ manufacturerGroup.y + (manufacturerGroup.height)/2 }" prompt="manufacturer..."/>
+	
+	<s:Group id="type" x="{(this.screen.width - type.width)/2}" y="{this.screen.height * .42}"
+			 width="80%">
+		<s:BorderContainer backgroundAlpha="0" borderColor="#808080" borderWeight="2"
+						   cornerRadius="5" height="100%">
+		<s:layout>
+			<s:TileLayout columnAlign="justifyUsingWidth" horizontalAlign="center" paddingTop="15"
+						  requestedColumnCount="1"/>
+		</s:layout>
+			<!-- Type -->
+			<s:Group>
+				<s:layout>
+					<s:TileLayout columnAlign="justifyUsingWidth" horizontalAlign="center"
+								  requestedColumnCount="3" columnWidth="{(this.screen.width * .8) /3}"/>
+				</s:layout>
+				<s:Label text="Lift Type:" verticalAlign="middle"/>
+				<s:CheckBox id="surface" label="Surface"
+							click="{inground.selected = false;         surfaceSubtype.visible = true;        ingroundSubtype.visible = false;         highPressure.selected = false;        lowPressure.selected = false;        foreAndAft.selected = false;        appModel.lift.type = surface.id; }"/>
+				<s:CheckBox id="inground" label="Inground"
+							click="{surface.selected = false;        ingroundSubtype.visible = true;        surfaceSubtype.visible = false;         _2post.selected = false;        _4post.selected = false;        pad.selected = false;        scissor.selected = false;        hinge.selected = false;        wheelEngaging.selected = false;        appModel.lift.type = inground.id; }"/>
+			</s:Group>
+			<!-- Subtype -->
+			<s:HGroup id="surfaceSubtype" visible="false" x="10" width="100%"
+					  horizontalAlign="center">			
+				<s:CheckBox id="_2post" label="2 Post"
+							click="{ _4post.selected = false;        pad.selected = false;        scissor.selected = false;        hinge.selected = false;        wheelEngaging.selected = false;         appModel.lift.subType = _2post.id; }"/>
+				<s:CheckBox id="_4post" label="4 Post"
+							click="{ _2post.selected = false;        pad.selected = false;        scissor.selected = false;        hinge.selected = false;        wheelEngaging.selected = false;         appModel.lift.subType = _4post.id; }"/>
+				<s:CheckBox id="pad" label="Pad"
+							click="{ _2post.selected = false;        _4post.selected = false;        scissor.selected = false;        hinge.selected = false;        wheelEngaging.selected = false;         appModel.lift.subType = pad.id; }"/>
+				<s:CheckBox id="scissor" label="Scissor"
+							click="{ _2post.selected = false;        _4post.selected = false;        pad.selected = false;        hinge.selected = false;        wheelEngaging.selected = false;         appModel.lift.subType = scissor.id; }"/>
+				<s:CheckBox id="hinge" label="Hinge"
+							click="{ _2post.selected = false;        _4post.selected = false;        pad.selected = false;        scissor.selected = false;        wheelEngaging.selected = false;         appModel.lift.subType = hinge.id; }"/>
+				<s:CheckBox id="wheelEngaging" label="Wheel Engaging"
+							click="{ _2post.selected = false;        _4post.selected = false;        pad.selected = false;        scissor.selected = false;        hinge.selected = false;         appModel.lift.subType = wheelEngaging.id; }"/>
+			</s:HGroup>
+			<!-- Inground -->
+			<s:HGroup id="ingroundSubtype" visible="false" width="100%" horizontalAlign="center">
+				<s:CheckBox id="highPressure" label="High Pressure"
+							click="{ lowPressure.selected = false;        foreAndAft.selected = false;         appModel.lift.subType = highPressure.id; }"/>
+				<s:CheckBox id="lowPressure" label="Low Pressure"
+							click="{ highPressure.selected = false;        foreAndAft.selected = false;        appModel.lift.subType = lowPressure.id; }"/>
+				<s:CheckBox id="foreAndAft" label="Fore and Aft"
+							click="{ highPressure.selected = false;        lowPressure.selected = false;        appModel.lift.subType = foreAndAft.id; }"/>
+			</s:HGroup>
+	</s:BorderContainer>
+	</s:Group>
+	
+	<!-- Details -->
+	<s:Scroller x="{(this.screen.width - this.details.width)/2}"
+				y="{this.screen.height * .57}" height="30%" width="80%">
+		<s:Group id="details">
+			<s:BorderContainer backgroundAlpha="0" borderColor="#808080" borderWeight="2"
+							   cornerRadius="5" width="100%" >
+			
+			<s:layout>
+				<s:TileLayout columnAlign="justifyUsingGap" horizontalAlign="justify"
+							  requestedColumnCount="2"/>
+			</s:layout>
+				<s:Label text="Details:"/>
+				<s:CheckBox id="swingArms" label="Swing Arms"/>
+				<s:CheckBox id="padStyle" label="Pad Style"/>
+				<s:CheckBox id="hybrid" label="Hybrid"/>
+				<s:CheckBox id="turf" label="Turf"/>
+				<s:CheckBox id="driveOnRunways" label="Drive on runways"/>
+				<s:CheckBox id="rollingBridges" label="Rolling Bridges/Jacks"/>
+				<s:CheckBox id="airRelease" label="Air release"/>
+				<s:CheckBox id="cableRelease" label="Cable release"/>
+				<s:CheckBox id="openFront" label="Open Front Configuration"/>
+				<s:CheckBox id="platforms" label="Platforms, railings, or stairways"/>
+				<s:CheckBox id="slackLock" label="Secondary/Slack Lock"/>
+				<s:CheckBox id="safteyRod" label="Secondary saftey rod mechanism"/>
+				<s:CheckBox id="airLocks" label="Air locks"/>
+				<s:CheckBox id="extendedHeightAdapters" label="Extended Height Adapters"/>
+				<s:CheckBox id="overheadStructure" label="Overhead Structure"/>
+				<s:CheckBox id="cables" label="Cables"/>
+				<s:CheckBox id="openContainment" label="Open Containment"/>
+				<s:CheckBox id="other" label="Other"/>
+			</s:BorderContainer>
+		</s:Group>
+	</s:Scroller>
+	
+	<!--Navigation Buttons-->
+	<s:HGroup y="{this.screen.height - this.screen.height * .15}" width="100%" height="10%"
+			  horizontalAlign="center" verticalAlign="bottom">
+		<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+			<s:Button id="back_btn" width="50%" height="50%" label="Back" click="navigator.popView()"/>
+		</s:HGroup>
+		<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle">
+			<s:Button id="next_btn" width="50%" height="50%" label="Next"
+					  click="setLiftData(), setQuestions(), navigator.pushView(QuestionsView, data)"
+					  enabled="{this.formValidator.formIsValid}"/>
+		</s:HGroup>
+	</s:HGroup>
+	
+</s:View>

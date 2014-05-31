@@ -1,0 +1,70 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+
+global
+{
+	chromeColor: #294867;
+	color: #CEE7F4;
+	contentBackgroundColor: #39628C;
+	symbolColor: #000000;
+	rollOverColor: #355D89;
+	selectionColor: #294867;
+	focusColor: #333300;
+	accentColor: #6589AD;
+	
+}
+
+
+/* Header */
+.header
+{
+	backgroundAlpha:0;
+	fontSize:28;
+	fontWeight:bold;
+}
+
+/* Label Style */
+s|Label
+{
+	fontSize:18;
+	color:#344F72;
+	
+}
+
+/* Text Input Style */
+s|TextInput
+{
+	textAlign:left;
+	fontSize:18;
+	
+}
+/* Button Style */
+s|Button
+{
+	fontSize:14;
+	
+}
+
+/* List Style */
+s|List
+{
+	color:#344F72;
+	selectionColor:#EFEFEF;
+	contentBackgroundAlpha:0;
+	fontSize:18; 
+}
+/* Spinner Style */
+s|SpinnerList
+{
+	fontSize:18;
+	color:#344F72
+}
+/* CheckBox Style */
+s|CheckBox
+{
+	fontSize:14;
+	color:#344F72
+}
+
+
+

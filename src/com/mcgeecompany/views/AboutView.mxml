@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+		creationComplete="onCreationComplete()"
+		actionBarVisible="false">
+	
+	<fx:Script>
+		<![CDATA[
+			
+			private var aboutMcGeeCompany:String;
+			
+			protected function onCreationComplete():void
+			{
+				aboutMcGeeCompany = new String();
+				aboutMcGeeCompany = "Family owned since 1951, the McGee Company has always operated with one simple goal: " +
+					"To anticipate the needs of our customers by having the right product available to them – " +
+					"right when they need it. With warehouses in Denver, Salt Lake City, Albuquerque and Dallas, " + 
+					"McGee brings the American West the largest inventory of products possible to best serve our customers every day."
+				
+				aboutUs.text = aboutMcGeeCompany;	
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<customcomponents:Background width="100%" height="100%"/>
+	
+	<s:VGroup width="100%" height="100%">
+		
+		<!--Title-->
+		<s:VGroup width="100%" height="10%" horizontalAlign="center" verticalAlign="middle">
+			
+			<s:Label styleName="header" text="About McGee Company" verticalAlign="bottom"/>
+		</s:VGroup>
+		
+		<!--About Information-->
+		<s:VGroup width="100%" height="80%" horizontalAlign="center" paddingTop="10"
+				  verticalAlign="middle">
+			
+			<s:VGroup width="80%" height="80%" horizontalAlign="center" verticalAlign="top">
+				
+				<s:Label fontSize="24" paddingTop="10" text="About Us:"/>
+				<s:TextArea id="aboutUs" width="80%" height="80%" editable="false" fontSize="18"/>
+				
+			</s:VGroup>
+			
+			
+		</s:VGroup>
+		<!-- JH: Unnecessary container nesting is bad on performance. Mostly likely no need to nest a VGroup inside of another VGroup.
+		You can probably find a more performant way to do this, first you need to establish how you want your UI laid out and reflow and then styled. -->
+		
+		
+		<!--Navigation Buttons-->
+		<s:HGroup width="100%" height="10%" horizontalAlign="center" verticalAlign="top">
+			<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+				<s:Button id="back_btn" width="50%" height="50%" label="Back"
+						  click="navigator.popView()"/>
+			</s:HGroup>
+			
+			<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle">
+				<!--<s:Button id="next_btn" label="Next" height="50%" width="50%" click="nextView()"/>-->
+			</s:HGroup>
+		</s:HGroup>
+		
+	</s:VGroup>
+</s:View>

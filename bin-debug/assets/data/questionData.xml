@@ -1,0 +1,149 @@
+<data>
+	
+	<general>
+		<question>Is a lifting capacity decal located on the lift?</question>
+		<question>Are owners manuals, safety instructions and lifting point information present?</question>
+		<question>Is a users daily log book present?</question>
+		<question>Has the user been properly trained in the safe use of this lift?</question>
+		<question>Are all safety labels present on lift and legible?</question>
+		<question>Examine all structural components including welds for signs of fatigue, overloading, and misuse?</question>
+		<question>Is there adequate clearance around the lift?</question>
+		<question>Check fastening devices for tightness.</question>
+		<question>Check engagement of main locks.</question>
+		<question>Check power unit for proper fluid level and leaks.</question>
+		<question>Power button works properly and is complete (i.e. bezel, rubber boots, etc.).</question>
+		<question>Check electrical components and wiring.</question>
+		<question>Check for drifting out of locks.</question>
+		<question>Check all accessible piping, tubing, hoses, valves, and fittings for leaks and proper routing.</question>
+		</general>
+	
+	<!-- Type -->
+	<surface>
+		<question>Check concrete condition and proper installation (i.e. cracks, seams, flaking, proper shimming, etc.)?</question>
+		<question>Check hydraulic cylinders for smooth operation, leaks and damage.</question>
+		<question>Check sheaves/pulleys for wear, alignment, damage, and shields.</question>
+	</surface>	
+	<inground>
+		<question>Check hoses for leaks, corrosion and proper routing.</question>
+		<question>Check internal framework for excessive rust or corrosion.</question>
+		<question>Is the center cover in good condition?</question>
+		<question>Check guide barrel plungers for corrosion or damage.</question>
+		<question>Check guide barrel plungers for proper lubrication/grease.</question>
+		<question>Check guide bearings and seals for wear or damage.</question>
+		<question>Does the lift incorporate equalization cables?</question>
+	</inground>
+	
+<!-- Subtype -->
+	<!-- Surface -->
+	<_2post>
+		<question>Is a spotting dish present on the floor?</question>
+		<question>Are safety covers and door bumpers in place?</question>
+		<question>Check operation of locks including latch cable/release cylinder adjustment.</question>
+		<question>Check wear on carriage bearings/slides.</question>
+		<question>Check for debris, trash, or excessive dirt inside column base.</question>
+	</_2post>
+	<_4post>
+		<question>Check all approach ramps for wear, cracks, or excessive bending including roller wheels or slides.</question>
+		<question>Check for the presence and condition of wheel stops on the front of the runways, unless it's being used in the drive on/drive off configuration.</question>
+		<question>Are wheel chocks present for use on this lift?</question>
+		<question>Check wear on yoke bearings/slides.</question>
+	</_4post>
+	<pad>
+		<question>Comments</question>
+	</pad>
+	<scissor>
+		<question>Comments</question>
+	</scissor>
+	<hinge>
+		<question>Comments</question>
+	</hinge>
+	<wheelEngaging>
+		<question>Comments</question>
+	</wheelEngaging>
+	<!-- Inground -->
+	<highPressure>
+	</highPressure>
+	<lowPressure>
+	</lowPressure>
+	<foreAndAft>
+	</foreAndAft>
+	<!-- Structure -->
+	
+				
+	<!-- Details -->
+	<swingArms>
+		<question>Check function of arms, main pins, telescoping stops, fatigue, overloading or arm drag.</question>
+		<question>Check adapters and pads for damage, wear and function including pins, threads,retaining rings, rubber or plastic pads.</question>
+	</swingArms>
+	<padStyle>
+		<question>Check for condition of pad structure, fatigue, overloading, corrosion or damage.</question>
+		<question>Check the condition of rubber pads and that they are securely attached.</question>
+		<question>Rubber riser blocks present.</question>
+	</padStyle>
+	<hybrid>
+		<question>Check function of rear arms, main pins, telescoping stops, and arm drag.</question>
+		<question>Check arm restraints for function, proper engagement, missing teeth, and wear.</question>
+		<question>Check adapters/pads for damage, wear and function including pins, threads, retaining rings, and rubber or plastic pads.</question>
+		<question>Check condition or front pad structure, corrosion, and main pin wear.</question>
+		<question>Check condition of front rubber pads and that they are securely attached.</question>
+		<question>Rubber riser blocks present.</question>
+	</hybrid>
+	<turf>
+		<question>Check all features for condition and function.</question>
+	</turf>
+	<driveOnRunways>
+		<question>Check all approach ramps for wear, cracks, or excessive bending including roller wheels or slides</question>
+		<question>Check for the presents and condition of wheel stops on the front of the runways unless being used in drive on/drive off configuration.</question>
+		<question>Are wheel chocks present for use on this lift</question>
+	</driveOnRunways>	
+	<rollingBridges>
+		<question>Ensure that bridges roll freely by checking wheels for wear, damage, that runway channels are clean and free of debris, and include ride springs if present.</question>
+		<question>Check that the pumps are full of oil and do not leak.</question>
+		<question>Check operation of of pullout arms including stops.</question>
+		<question>Check that bridge locks function including the lock release.</question>
+		<question>Check all hoses including hydraulic and pneumatic for leaks or damage.</question>
+	</rollingBridges>
+	<airRelease>	
+		<question>Check to ensure that lift has FLR installed before release valve.</question>
+		<question>Check for proper adjustment, function and full release of locks.</question>
+	</airRelease>
+	<cableRelease>
+		<question>Check to ensure that lift has FLR installed before release valve.</question>
+		<question>Check for proper adjustment, function and full release of locks.</question>
+	</cableRelease>
+	<openFront>
+		<question>Check carriage roller bearings for wear or damage.</question>
+		<question>Check that runways are securely attached to the yoke beam.</question>
+	</openFront>
+	<platforms>
+		<question>Check all lube rack type accessories for proper function.</question>
+		<question>Check hand rails, stairs and platforms for damage or loose hardware.</question>
+	</platforms>
+	<slackLock>
+		<question>Check function of slack lock on all four corners.</question>
+	</slackLock>
+	<safteyRod>
+		<question>Check for evidence of use or damage to any part of safety rod.</question>
+	</safteyRod>
+	<airLocks>
+		<question>Check that all lock release cylinders/bimbas function properly and do not leak.</question>
+		<question>Check lock release valve for proper function, sticking handle, and leaks.</question>
+		<question>Check to ensure that lift has FLR installed before release valve.</question>
+	</airLocks>
+	<extendedHeightAdapters>
+		<question>Check condition and proper operation.</question>
+	</extendedHeightAdapters>
+	<overheadStructure>
+		<question>Check condition of overhead structure.</question>
+		<question>Check operation of safety shutoff.</question>
+	</overheadStructure>
+	<cables>
+		<question>Check cables or chains for frays, stretching, corrosion, damage, routing, tracking, lubrication, and proper adjustment.</question>
+	</cables>
+	<openContainment>
+		<question>Will the containment be opened in this inspection?</question>
+		<question>Is liquid in the containment?</question>
+	</openContainment>
+	
+		
+</data>

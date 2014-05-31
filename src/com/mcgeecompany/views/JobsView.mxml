@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx" 
+	xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+	creationComplete="onCreationComplete()"
+	actionBarVisible="false">
+	
+	<fx:Metadata>
+		[Event(name="formSelected", type="flash.events.Event")]
+		[Event(name="formSent", type="flash.events.Event")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.control.SQLControl;
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.DataModel;
+			import com.mcgeecompany.model.vo.AddressVO;
+			import com.mcgeecompany.model.vo.CompanyVO;
+			import com.mcgeecompany.model.vo.FormVO;
+			import com.mcgeecompany.model.vo.LiftVO;
+			
+			import mx.collections.ArrayCollection;
+			
+			[Bindable] private var appModel:AppModel = AppModel.getInstance();
+			[Bindable] private var dataModel:DataModel = DataModel.getInstance();
+			private var jobs:ArrayCollection = new ArrayCollection();
+			private var jobsArray:Array = [ ];
+			
+			private function onCreationComplete():void
+			{
+				dataModel.sqlControl = new SQLControl();
+				dataModel.sqlControl.loadSQLData();
+				
+				//Parse Loaded data to display only same SRO number on jobs list
+				var init:Boolean;
+				for each (var job:Object in dataModel.loadedForms){
+					for each (var obj:Object in jobsArray)
+					{
+						if(job.sro == obj.sro) {
+							init = true;
+						} else init = false;
+					} 
+					if (init == true) {
+						
+					} 
+					if (init == false) {
+						jobsArray.push(job);
+					}
+					
+				}
+				
+				jobs.source = jobsArray;
+				formList.dataProvider = jobs;
+				formList.addEventListener('formSelected', loadForm);
+				formList.addEventListener('formSent', sendForm);
+			}
+			
+			override public function set data(value:Object):void 
+			{
+				super.data = value;
+			}
+			
+			protected function loadForm(event:Event):void
+			{
+				//Write loaded data from dataModel to appModel
+				
+				////--Form--\\\\
+				appModel.form = new FormVO();
+				appModel.form.inspector = formList.selectedItem['inspector'];
+				appModel.form.sro = formList.selectedItem['sro'];
+				
+				////--Address--\\\\
+				appModel.address = new AddressVO();
+				appModel.address.streetNumber = formList.selectedItem['streetNumber'];
+				appModel.address.streetName = formList.selectedItem['streetName'];
+				appModel.address.city = formList.selectedItem['city'];
+				appModel.address.state = formList.selectedItem['state'];
+				appModel.address.zipCode = formList.selectedItem['zipCode'];
+				appModel.address.phoneNumber = formList.selectedItem['phoneNumber'];
+				
+				////--Company--\\\\
+				appModel.company = new CompanyVO();
+				appModel.company.location = formList.selectedItem['location'];
+				appModel.company.email = formList.selectedItem['email'];
+				
+				
+				////--Lift--\\\\
+				appModel.lift = new LiftVO();
+							
+				////--Questions--\\\\					
+				navigator.pushView(CompanyView, data);
+			}
+			
+			protected function sendForm(event:Event):void
+			{
+				////--Form--\\\\
+				appModel.form = new FormVO();
+				appModel.form.inspector = formList.selectedItem['inspector'];			
+				appModel.form.sro = formList.selectedItem['sro'];
+				
+				////--Company--\\\\
+				appModel.company = new CompanyVO();
+				appModel.company.location = formList.selectedItem['location'];
+				appModel.company.email = formList.selectedItem['email'];
+				
+				navigator.pushView(EmailView);
+			} 
+			
+		]]>
+	</fx:Script>
+	
+	<customcomponents:Background width="100%" height="100%"/>
+	
+	<s:VGroup width="100%" height="15%" horizontalAlign="center" verticalAlign="middle">
+		<s:Label styleName="header" 
+				 text="Jobs"
+				 verticalAlign="bottom"/>
+	</s:VGroup>
+	
+	<s:HGroup width="80%" height="5%" horizontalAlign="center" verticalAlign="middle"
+			  x="{this.screen.width * .1}" y="{this.screen.height * .15}">
+		<s:Image source="@Embed('assets/images/emailIcon.png')"/> 
+		<s:Label text="Send job forms to client"/>
+		<s:Image source="@Embed('assets/images/acceptIcon.png')"/>
+		<s:Label text="Load company data from job"/>
+	</s:HGroup>
+	
+	<s:Group width="80%" height="75%" x="{this.screen.width * .1}" y="{this.screen.height * .2}" id="inspectionGroup">
+				
+		<s:List id="formList"
+				height="90%"
+				width="100%" 
+				contentBackgroundColor="#EFEFEF"						
+				itemRenderer="com.mcgeecompany.views.itemrenderer.JobRenderer"/>		
+			
+	</s:Group>
+		
+	<!--Navigation Buttons-->
+	<s:HGroup y="{this.screen.height - this.screen.height * .15}" width="100%" height="10%"
+			  horizontalAlign="center" verticalAlign="bottom">
+		<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+			<s:Button id="back_btn" width="50%" height="50%" label="Back" click="navigator.popView()"/>
+		</s:HGroup>
+		<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle"/>
+	</s:HGroup>
+</s:View>

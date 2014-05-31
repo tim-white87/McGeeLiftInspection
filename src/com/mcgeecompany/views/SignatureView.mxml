@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:customcomponents="com.mcgeecompany.skins.customcomponents.*"
+		actionBarVisible="false" creationComplete="onCreationComplete()">
+	
+	<!-- Signature Capture by Andrew Trice 
+	http://www.tricedesigns.com/2011/12/21/capturing-user-signatures-in-mobile-applications/ -->
+	
+	<fx:Script>
+		<![CDATA[
+			import com.mcgeecompany.control.SQLControl;
+			import com.mcgeecompany.control.utilities.PDFGenerator;
+			import com.mcgeecompany.model.AppModel;
+			import com.mcgeecompany.model.DataModel;
+			import com.mcgeecompany.model.vo.FormVO;
+			
+			import mx.utils.Base64Decoder;
+			import mx.utils.StringUtil;
+			
+			[Bindable]private var appModel:AppModel = AppModel.getInstance();
+			[Bindable]private var dataModel:DataModel = DataModel.getInstance();
+			private var base64Dec:Base64Decoder;
+			
+			
+			private function onCreationComplete():void
+			{
+				// On load form display the signature, or instantiate new FormVO
+				if(appModel.form.signature is String)
+					decodeSignature();
+	
+				if (appModel.form == null)
+					appModel.form = new FormVO(); 
+			}
+			
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				
+				if( value is FormVO )
+				{
+					appModel.form = value as FormVO;
+				}
+			}
+			
+			private function reset() : void
+			{
+				sig.clear();
+				feedback.text = "Cleared";
+			}
+			
+			private function storeSignature():void
+			{
+				
+				appModel.form.signature = sig.toString();
+				feedback.text = "Saved";
+				decodeSignature();
+			}
+			
+			private function decodeSignature():void
+			{
+				base64Dec = new Base64Decoder();
+				StringUtil.trim(appModel.form.signature);
+				base64Dec.decode(appModel.form.signature);
+				appModel.form.sigByteArr = base64Dec.toByteArray();
+				signatureImage.source = appModel.form.sigByteArr;
+			}
+			
+			private function _onPassFailCheck( event:MouseEvent ):void
+			{
+				if( event.target.hasOwnProperty( "id" ) )
+					event.target.id == "pass" ? appModel.form.inspectionPass = true : appModel.form.inspectionPass = false;
+			}
+			
+			private function setFinalData():void
+			{
+				
+				//form.generate();
+				var date:Date = new Date();
+				appModel.form.date = date.month + 1 + '/' + date.date + '/' + date.fullYear;
+				storeSignature();
+				var form:PDFGenerator = new PDFGenerator();				
+				
+				dataModel.sqlControl = new SQLControl();
+				dataModel.sqlControl.writeCompanyData();
+				dataModel.sqlControl.writeAddressData();
+				dataModel.sqlControl.writeLiftData();
+				for each (appModel.question in appModel.questionList)
+				{
+					dataModel.sqlControl.writeQuestionData();
+				}
+				dataModel.sqlControl.writeFormData(); 
+			}
+				
+		]]>
+	</fx:Script>
+
+	<!-- states -->
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	
+	<customcomponents:Background width="100%" height="100%"/>
+	
+	<s:VGroup width="100%" height="30%" horizontalAlign="center" verticalAlign="middle">
+		<s:Label styleName="header" text="Finalize Inspection"/>
+	</s:VGroup>
+			
+		
+	<s:VGroup x="{0 + this.screen.width * .1}" y="{0 + this.screen.height * .25}" width="80%"
+			  height="80%" horizontalAlign="center">
+		
+			<s:Label fontSize="18" text="Check if use of this lift is not recommended until repairs are made:"/>
+		<s:HGroup verticalAlign="middle">
+			<s:CheckBox id="pass" label="Recommended For Use " click="_onPassFailCheck( event )"
+						selected="{ appModel.form.inspectionPass }"/>	
+			<s:CheckBox id="fail" label="Not Recommended For Use" click="_onPassFailCheck( event )"
+						selected="{ !appModel.form.inspectionPass }"/>
+		</s:HGroup>	
+		
+			
+		<s:VGroup width="100%" height="30%" horizontalAlign="center" paddingTop="20"
+				  verticalAlign="middle">
+			<s:Label fontWeight="bold" text="Signature:"/>
+			<customcomponents:SignatureCapture id="sig" visible="true" width="90%" height="90%"
+											   enabled="true" includeInLayout="true"/>
+		</s:VGroup>
+			
+			<s:HGroup width="80%" horizontalAlign="center">
+				<s:Label id="feedback" width="100%"/>
+				
+				<s:Image id="cancel" click="reset()"
+						 source="@Embed('assets/images/cancelIcon.png')"
+						 alpha.down=".75"/>
+				
+				<s:Image id="accept" click="storeSignature()"
+						 source="@Embed('assets/images/acceptIcon.png')"
+						 alpha.down=".75"/>
+				
+			</s:HGroup>
+			
+			<s:Image id="signatureImage" source="{ appModel.form.sigByteArr }"/>
+			
+		
+	</s:VGroup>
+	<!--Navigation Buttons-->
+	<s:HGroup y="{this.screen.height - this.screen.height * .15}" width="100%" height="10%"
+			  horizontalAlign="center" verticalAlign="bottom">
+		<s:HGroup width="40%" height="5%" horizontalAlign="left" verticalAlign="middle">
+			<s:Button id="back_btn" width="50%" height="50%" label="Back" click="navigator.popView()"/>
+		</s:HGroup>
+		<s:HGroup width="40%" height="5%" horizontalAlign="right" verticalAlign="middle">
+			<s:Button id="next_btn" width="50%" height="50%" label="Next"
+					  click="navigator.pushView(McGeeInspectionHomeView, data), setFinalData()"/>
+		</s:HGroup>
+	</s:HGroup>
+
+		
+</s:View>
